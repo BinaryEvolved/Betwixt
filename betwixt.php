@@ -92,7 +92,10 @@ $GLOBALS['betwixt']['cookieSecure'] = false;//Best Use: True
  * Begin Functions
  */
 
-
+/**
+ * Checks for three cookies and ensures they are valid, returns true or false depending on validity of tokens
+ * @return bool
+ */
 function btwxt_CheckToken(){
     $tokenID = $_COOKIE[btwxt_CraftCookieName('ID')];
     $tokenData = $_COOKIE[btwxt_CraftCookieName('Token')];
@@ -110,11 +113,19 @@ function btwxt_CheckToken(){
 
 }
 
-
+/**
+ * Formats a cookie name depending on the global configuration
+ * @param $cookieID
+ * @return string
+ */
 function btwxt_CraftCookieName($cookieID){
     return $GLOBALS['betwixt']['cookiePrefix'].'_'.$cookieID;
 }
 
+/**
+ * Hashes and keys several values togethers and sets them into three different cookies. Returns false on failure
+ * @return bool
+ */
 function btwxt_Imprint(){
     $tokenID = bin2hex(openssl_random_pseudo_bytes(5));//Generates a token ID
     $expiryTime = time() + $GLOBALS['betwixt']['cookieExpiry'];
@@ -132,6 +143,11 @@ function btwxt_Imprint(){
     return true;
 }
 
+/** 
+ * Hashs and keys input into a hash, fails if unable to retrieve key
+ * @param $input
+ * @return bool|string
+ */
 function btwxt_HashKey($input){
     $key = btwxt_GetKey();
     if (!$key){
@@ -142,6 +158,10 @@ function btwxt_HashKey($input){
     return $output;
 }
 
+/**
+ * Returns key, if key global variable is empty it creates and reads a 2048 bit key itself.
+ * @return bool|string
+ */
 function btwxt_GetKey() {
     if ($GLOBALS['betwixt']['key']) return $GLOBALS['betwixt']['key'];
     $file = dirname(__FILE__).'/'.'/betwixt-key.php';
