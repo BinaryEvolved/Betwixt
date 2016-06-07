@@ -180,19 +180,32 @@ function btwxt_GetKey() {
     return false;
 }
 
+/**
+ * Checks if the client has the proper cookies set, does not validate the cookies.
+ * @return bool
+ */
+function btwxt_IsActive(){
+    if (isset ($_COOKIE[btwxt_CraftCookieName("ID")]) && isset ($_COOKIE[btwxt_CraftCookieName("Token")])
+        && isset ($_COOKIE[btwxt_CraftCookieName("Timestamp")])){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 /*
  * End Functions
  * Begin Initialization
  */
 if ($GLOBALS['betwixt']['enabled']) {//Check if Betwixt is enabled, and allowed to run
-    if (isset ($_COOKIE[btwxt_CraftCookieName("ID")]) && isset ($_COOKIE[btwxt_CraftCookieName("Token")])
-        && isset ($_COOKIE[btwxt_CraftCookieName("Timestamp")])){//Checks if a Betwixt token has been declared for the user
+    if (btwxt_IsActive()){//Checks if a Betwixt token has been declared for the user
         if (!btwxt_CheckToken()){
             setcookie(btwxt_CraftCookieName('ID'), "", time()-3600);
             setcookie(btwxt_CraftCookieName('Token'), "", time()-3600);
             setcookie(btwxt_CraftCookieName('Timestamp'), "", time()-3600);
             echo "Error- Your Betwixt Validation Token is invalid. You have either forged a token, or have been idle too
             long. Try to refresh the page. If this error continues to occur, contact the webmaster. Please ensure you have enabled cookies.";
+            die();//Kill the rest of the page to prevent sensitive material from loading
 
         }
     }else{
