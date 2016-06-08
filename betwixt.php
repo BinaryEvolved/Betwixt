@@ -218,6 +218,15 @@ class Betwixt
     }
 
     /**
+     * Removes the cookies set originally
+     */
+    public function Remove(){
+        setcookie($this->CraftCookieName('ID'), "", 1);
+        setcookie($this->CraftCookieName('Token'), "", 1);
+        setcookie($this->CraftCookieName('Timestamp'), "", 1);
+    }
+
+    /**
      * Returns the config setting for the display page
      * @return string
      */
@@ -246,9 +255,7 @@ $betwixt = new Betwixt();
 if ($betwixt->IsEnabled()){//Check if Betwixt is enabled, and allowed to run
     if ($betwixt->IsActive()){//Checks if a Betwixt token has been declared for the user
         if (!$betwixt->CheckToken()){
-            setcookie($betwixt->CraftCookieName('ID'), "", time() - 3600);
-            setcookie($betwixt->CraftCookieName('Token'), "", time() - 3600);
-            setcookie($betwixt->CraftCookieName('Timestamp'), "", time() - 3600);
+            $betwixt->Remove();
             echo "Error- Your Betwixt Validation Token is invalid. You have either forged a token, or have been idle too
             long. Try to refresh the page. If this error continues to occur, contact the webmaster. Please ensure you have enabled cookies.";
             die();//Kill the rest of the page to prevent sensitive material from loading
