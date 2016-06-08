@@ -172,7 +172,7 @@ class Betwixt
      * Returns key, if key global variable is empty it creates and reads a 2048 bit key itself.
      * @return bool|string
      */
-    public function GetKey()
+    private function GetKey()
     {
         if ($this->config['key']) return $this->config['key'];
         $file = dirname(__FILE__) . '/' . '/betwixt-key.php';
