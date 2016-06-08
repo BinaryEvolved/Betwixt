@@ -9,7 +9,6 @@
  * @copyright BinaryEvolved 2016, Licensed under GNU GENERAL PUBLIC LICENSE v3 | https://github.com/BinaryEvolved/Betwixt/blob/master/LICENSE
  * @deprecated This file is meant to be included on any page that requires it's protection. (Ex: include(betwixt.php);)
  *  Once included it's code will automatically run and perform it's protection checks.
- * @version 1.0
  */
 class Betwixt
 {
