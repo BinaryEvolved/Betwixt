@@ -103,7 +103,7 @@ private $config = array();
  * Checks for three cookies and ensures they are valid, returns true or false depending on validity of tokens
  * @return bool
  */
-function CheckToken(){
+public function CheckToken(){
     $tokenID = $_COOKIE[$this->CraftCookieName('ID')];
     $tokenData = $_COOKIE[$this->CraftCookieName('Token')];
     $tokenTime = $_COOKIE[$this->CraftCookieName('Timestamp')];
@@ -125,7 +125,7 @@ function CheckToken(){
  * @param $cookieID
  * @return string
  */
-function CraftCookieName($cookieID){
+    public function CraftCookieName($cookieID){
     return $this->config['cookiePrefix'].'_'.$cookieID;
 }
 
@@ -133,7 +133,7 @@ function CraftCookieName($cookieID){
  * Hashes and keys several values togethers and sets them into three different cookies. Returns false on failure
  * @return bool
  */
-function Imprint(){
+    public function Imprint(){
     $tokenID = bin2hex(openssl_random_pseudo_bytes(5));//Generates a token ID
     $expiryTime = time() + $this->config['cookieExpiry'];
     $tokenValue = $tokenID.'|'.$expiryTime.'|'.$this->config['ipSource'];
@@ -155,7 +155,7 @@ function Imprint(){
  * @param $input
  * @return bool|string
  */
-function HashKey($input){
+    public function HashKey($input){
     $key = $this->GetKey();
     if (!$key){
         trigger_error ('Betwixt: Unable to retrieve a safe key');
@@ -169,7 +169,7 @@ function HashKey($input){
  * Returns key, if key global variable is empty it creates and reads a 2048 bit key itself.
  * @return bool|string
  */
-function GetKey() {
+    public function GetKey() {
     if ($this->config['key']) return $this->config['key'];
     $file = dirname(__FILE__).'/'.'/betwixt-key.php';
     $key = '';//Pleases IDEs
@@ -191,7 +191,7 @@ function GetKey() {
  * Checks if the client has the proper cookies set, does not validate the cookies.
  * @return bool
  */
-function IsActive(){
+    public function IsActive(){
     if (isset ($_COOKIE[$this->CraftCookieName("ID")]) && isset ($_COOKIE[$this->CraftCookieName("Token")])
         && isset ($_COOKIE[$this->CraftCookieName("Timestamp")])){
         return true;
@@ -204,7 +204,7 @@ function IsActive(){
      * Returns the config setting for the display page
      * @return string
      */
-    function GetDisplayPage(){
+    public function GetDisplayPage(){
         return $this->config['displayPage'];
     }
 
