@@ -102,20 +102,23 @@ class Betwixt
      */
     public function CheckToken()
     {
+        //Declared the variables we will work with
         $tokenID = $_COOKIE[$this->CraftCookieName('ID')];
         $tokenData = $_COOKIE[$this->CraftCookieName('Token')];
         $tokenTime = $_COOKIE[$this->CraftCookieName('Timestamp')];
+        //Combine the server token to be hashed
         $serverToken = $tokenID . '|' . $tokenTime . '|' . $this->config['ipSource'];
         if ($this->config['userAgentLock']) $serverToken .= '|' . $_SERVER['HTTP_USER_AGENT'];
-        $serverToken = $this->HashKey($serverToken);
-        if (!$this->config['enabled']) return true;
-        if (hash_equals($serverToken, $tokenData)){
+
+        $serverToken = $this->HashKey($serverToken);//Hash the token
+        if (!$this->config['enabled']) return true;//Return true if disabled
+        if (hash_equals($serverToken, $tokenData)){//If cookie sent matches token hashed locally
             if ($tokenTime < time()) return false;
             return true;
         }
         else{
             return false;
-        }//If all else fails, fail script
+        }
 
     }
 
@@ -135,20 +138,23 @@ class Betwixt
      */
     public function Imprint()
     {
-        $tokenID = bin2hex(openssl_random_pseudo_bytes(5));//Generates a token ID
-        $expiryTime = time() + $this->config['cookieExpiry'];
+        $tokenID = bin2hex(openssl_random_pseudo_bytes(10));//CPRNG for the ID
+        $expiryTime = time() + $this->config['cookieExpiry'];//Calculate the expiry time
+        //Figure out the token hash
         $tokenValue = $tokenID . '|' . $expiryTime . '|' . $this->config['ipSource'];
         if ($this->config['userAgentLock']) $tokenValue .= '|' . $_SERVER['HTTP_USER_AGENT'];
-        $cookieToken = $this->HashKey($tokenValue);
-        if (!$cookieToken) return false;
-        $domainPath = $this->config['cookiePath'] == '' ? false : $this->config['cookiePath'];
+        $cookieToken = $this->HashKey($tokenValue);//Hash the server sided values into a token
+
+        if (!$cookieToken) return false;//If hashing failed return false
+        $domainPath = $this->config['cookiePath'] == '' ? false : $this->config['cookiePath'];//Figure out cookie path
+        //Send cookies to client to be stored
         setcookie($this->CraftCookieName('ID'), $tokenID, $expiryTime, $this->config['cookiePath'], $domainPath,
                   $this->config['cookieSecure'], true);
         setcookie($this->CraftCookieName('Token'), $cookieToken, $expiryTime, $this->config['cookiePath'], $domainPath,
                   $this->config['cookieSecure'], true);
         setcookie($this->CraftCookieName('Timestamp'), $expiryTime, $expiryTime, $this->config['cookiePath'], $domainPath,
                   $this->config['cookieSecure'], true);
-        return true;
+        return true;//Didn't crash, good 'nouf
     }
 
     /**
@@ -158,36 +164,40 @@ class Betwixt
      */
     public function HashKey($input)
     {
-        $key = $this->GetKey();
+        $key = $this->GetKey();//Pulls key from function
         if (!$key){
             trigger_error('Betwixt: Unable to retrieve a safe key');
             return false;
         }
-        $output = hash_hmac('sha512', $input, $key);
-        return $output;
+        $output = hash_hmac('sha512', $input, $key);//Hash the input and key it with the retrieved key
+        return $output;//I hope I don't need to explain this
     }
 
     /**
      * Returns key, if key global variable is empty it creates and reads a 2048 bit key itself.
+     * Sub-note: You should only ever pull the key from this function!
      * @return bool|string
      */
     private function GetKey()
     {
-        if ($this->config['key']) return $this->config['key'];
+        if ($this->config['key']) return $this->config['key'];//If key is defined, use that, instead use file method
         $file = dirname(__FILE__) . '/' . '/betwixt-key.php';
-        $key = '';//Pleases IDEs
-        if (file_exists($file)){
+        $key = '';//Pleases IDEs, thank you PHPStorm for being unable to assume some values
+        //can be included. If this is possible please contact me, I will give you a dollar in BitCoin..
+        if (file_exists($file)){//Does key already exist?
+            //Yes? Use the key in that file
             include $file;
             return hex2bin($key);
         }
         if (is_writable(dirname(__FILE__))){
+            //No? Create your own key!
             $key = bin2hex(openssl_random_pseudo_bytes(256));
             $fh = fopen($file, 'w');
             fwrite($fh, '<?php $key = "' . $key . '";' . PHP_EOL);
             fclose($fh);
             return $key;
         }
-        return false;
+        return false;//Something went wrong, return false
     }
 
     /**
@@ -196,8 +206,9 @@ class Betwixt
      */
     public function IsActive()
     {
-        if (isset ($_COOKIE[$this->CraftCookieName("ID")]) && isset ($_COOKIE[$this->CraftCookieName("Token")])
-            && isset ($_COOKIE[$this->CraftCookieName("Timestamp")])
+        if (isset ($_COOKIE[$this->CraftCookieName("ID")])//Does ID exist?
+            && isset ($_COOKIE[$this->CraftCookieName("Token")])//Does Token exist?
+            && isset ($_COOKIE[$this->CraftCookieName("Timestamp")])//I will leave this one to you
         ){
             return true;
         }
@@ -212,7 +223,7 @@ class Betwixt
      */
     public function GetDisplayPage()
     {
-        return $this->config['displayPage'];
+        return $this->config['displayPage'];//Return the config value
     }
 
 
@@ -222,7 +233,7 @@ class Betwixt
      */
     public function IsEnabled()
     {
-        return $this->config['enabled'];
+        return $this->config['enabled'];//Return the config value
     }
 }
 
