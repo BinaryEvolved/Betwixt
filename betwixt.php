@@ -15,6 +15,7 @@ class Betwixt
 
 
     private $config = array();
+    public $reCaptcha;
 
     public function __construct()
     {
@@ -68,13 +69,13 @@ class Betwixt
          * Enter your website's reCaptcha 'Site Key' here,
          * You can sign up for one here: https://www.google.com/recaptcha/admin
          */
-        $this->config['reCaptcha']['siteKey'] = '';
+        $this->config['reCaptcha']['siteKey'] = '6Lfa5SUTAAAAAB-YgY2lDYs6ooYdbVGXypJMQJea';
 
         /**
          * Enter your website's reCaptcha 'Secret Key' here,
          * You can sign up for one here: https://www.google.com/recaptcha/admin
          */
-        $this->config['reCaptcha']['secretKey'] = '';
+        $this->config['reCaptcha']['secretKey'] = '6Lfa5SUTAAAAAA4kV6VBjJ6EK1TBUrKJuYYlL8HA';
 
         /**
          * Changes the theme assigned to your reCaptcha Widget
@@ -120,8 +121,11 @@ class Betwixt
         * Begin Functions
         */
 
-        if ($this->config['reCaptcha']['enabled'])
+        if ($this->config['reCaptcha']['enabled']){
             include('recaptcha.php');
+            $this->reCaptcha = new ReCaptcha($this->config['reCaptcha']['secretKey']);
+        }
+
     }
 
 
@@ -230,6 +234,33 @@ class Betwixt
     }
 
     /**
+     * Returns the status of reCaptcha being setup in the configuration of Betwixt
+     * @return bool
+     */
+    public function IsReCaptchaEnabled()
+    {
+        return $this->config['reCaptcha']['enabled'];
+    }
+
+    /**
+     * Returns siteKey specified in the Betwixt configuration
+     * @return string
+     */
+    public function GetReCaptchaSiteKey()
+    {
+        return $this->config['reCaptcha']['siteKey'];
+    }
+
+    /**
+     * Returns visitors's real IP based off the value specified in the Betwixt configuration
+     * @return string
+     */
+    public function GetClientIP()
+    {
+        return $this->config['ipSource'];
+    }
+
+    /**
      * Checks if the client has the proper cookies set, does not validate the cookies.
      * @return bool
      */
@@ -249,7 +280,8 @@ class Betwixt
     /**
      * Removes the cookies set originally
      */
-    public function RemoveToken(){
+    public function RemoveToken()
+    {
         setcookie($this->CraftCookieName('ID'), "", 1);
         setcookie($this->CraftCookieName('Token'), "", 1);
         setcookie($this->CraftCookieName('Timestamp'), "", 1);
@@ -292,19 +324,46 @@ if ($betwixt->IsEnabled()){//Check if Betwixt is enabled, and allowed to run
         }
     }
     else{
-        //Creates a set of tokens for validation
-        if (!$betwixt->Imprint()){
-            echo "<h1>An error occurred, please ensure you have cookies enabled</h1>";
-            echo "<br><p>-Betwixt</p>";
-        }
-        else{
+        if ($betwixt->IsReCaptchaEnabled())//Checks if reCaptcha was enabled in the Betwixt configuration
+        {
+            if (isset($_POST["g-recaptcha-response"])){//Checks if reCaptcha has been submitted
+                //Checks the reCaptcha API to verify a valid response was submitted
+                $response =
+                    $betwixt->reCaptcha->verifyResponse($betwixt->GetClientIP(), $_POST["g-recaptcha-response"]);
 
-            //Render page
-            $include = dirname(__FILE__) . '/' . $betwixt->GetDisplayPage();
-            include($include);
-            //Token is created, Refresh page to re-run the check
-            echo '<meta http-equiv="refresh" content="3">';
-            die();//Stop the rest of the page from rendering.
+                if ($response->success){
+                    $betwixt->Imprint();//If valid captcha was filled out, grant access to website
+                    die ('<meta http-equiv="refresh" content="0">');
+                }
+                else{
+                    die("Error- Your reCaptcha noCaptcha token has either been forged or expired because you waited too long to 
+            continue.. Please refresh and try again.");
+                }
+
+            }
+            else{
+                //reCaptcha has yet to be filled out, instead renders the check page
+                $include = dirname(__FILE__) . '/' . $betwixt->GetDisplayPage();
+                include($include);
+                die();//Stop the rest of the page from executing.
+            }
+
+        }
+        else{//If ReCaptcha is not enabled
+            //Creates a set of tokens for validation
+            if (!$betwixt->Imprint()){
+                echo "<h1>An error occurred, please ensure you have cookies enabled</h1>";
+                echo "<br><p>-Betwixt</p>";
+            }
+            else{
+
+                //Render page
+                $include = dirname(__FILE__) . '/' . $betwixt->GetDisplayPage();
+                include($include);
+                //Token is created, Refresh page to re-run the check
+                echo '<meta http-equiv="refresh" content="3">';
+                die();//Stop the rest of the page from executing.
+            }
         }
     }
 }
