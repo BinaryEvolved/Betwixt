@@ -56,6 +56,32 @@ class Betwixt
          */
         $this->config['userAgentLock'] = true;//Default: True
 
+        ///// VERIFICATION SETTINGS /////
+
+        /**
+         * Enables Google's reCaptcha noCaptcha system, this captcha will
+         * be required to be passed in order to gain access past betwixt
+         */
+        $this->config['reCaptcha']['enabled'] = true;
+
+        /**
+         * Enter your website's reCaptcha 'Site Key' here,
+         * You can sign up for one here: https://www.google.com/recaptcha/admin
+         */
+        $this->config['reCaptcha']['siteKey'] = '';
+
+        /**
+         * Enter your website's reCaptcha 'Secret Key' here,
+         * You can sign up for one here: https://www.google.com/recaptcha/admin
+         */
+        $this->config['reCaptcha']['secretKey'] = '';
+
+        /**
+         * Changes the theme assigned to your reCaptcha Widget
+         * Possible Options: light, dark
+         */
+        $this->config['reCaptcha']['theme'] = 'light';//Either light or dark
+
         ///// COOKIE SETTINGS /////
 
         /**
@@ -93,6 +119,9 @@ class Betwixt
         * End Configuration
         * Begin Functions
         */
+
+        if ($this->config['reCaptcha']['enabled'])
+            include('recaptcha.php');
     }
 
 
