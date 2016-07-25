@@ -69,13 +69,13 @@ class Betwixt
          * Enter your website's reCaptcha 'Site Key' here,
          * You can sign up for one here: https://www.google.com/recaptcha/admin
          */
-        $this->config['reCaptcha']['siteKey'] = '';
+        $this->config['reCaptcha']['siteKey'] = 'siteKeyHere';
 
         /**
          * Enter your website's reCaptcha 'Secret Key' here,
          * You can sign up for one here: https://www.google.com/recaptcha/admin
          */
-        $this->config['reCaptcha']['secretKey'] = '';
+        $this->config['reCaptcha']['secretKey'] = 'secretKeyHer';
 
         /**
          * Changes the theme assigned to your reCaptcha Widget
