@@ -10,7 +10,7 @@ Betwixt is designed to be a drop in way to safely manage verification cookies us
 Simply drop betwixt.php into any directory and then include it using `include ('betwixt.php')`(See test.php for an example)
 Next you should go through and check the configuration options located at the top of php class. Most settings work best at default, others are disabled for easy drop in usage for most environments.
 
-At the bottom of `betwixt.php` you will find a basic integration which does not perform any checks by its self. There is a simple reCaptcha implementation for basic implementation, instructions on use are below. This is where you could integrate your own form of checks required to be issued a session token.
+At the bottom of `betwixt.php` you will find a basic integration which does not perform any checks by its self. There is a simple reCaptcha implementation for basic security, instructions for use are below. This is where you could integrate your own form of checks required to be issued a session token.
 
 
 
